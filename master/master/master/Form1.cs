@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -16,8 +17,12 @@ namespace master
     {
         static List<string> dirs;
         static string dirPath;
-        
-         BackgroundWorker bg;
+        FileInfo[] filesa;
+        static List<FileInfo> filesas;
+        static List<string> filesasstr;
+        Process currentProc;
+
+        BackgroundWorker bg;
 
         public static object ListBox1 { get; private set; }
 
@@ -43,12 +48,15 @@ namespace master
         private void button1_Click(object sender, EventArgs e)
         {
             ActiveForm.Text = "fgfgf";
+           
             try
             {
                 dirPath = textBox1.Text;
                 //Thread newThread = new Thread(loaddirect);
                 //newThread.Start();
                 bg.RunWorkerAsync();
+                button1.Enabled = false;
+                textBox1.Enabled = false;
                 // richTextBox1.Lines = dirs.ToArray();
                 
 
@@ -72,8 +80,23 @@ namespace master
         {
            // string dirPath = @"h:\downloads";
              dirs = new List<string>(Directory.EnumerateDirectories(dirPath, "*", SearchOption.AllDirectories));
-            
-            bg.ReportProgress(dirs.Count);
+            filesas = new List<FileInfo>();
+            filesasstr = new List<string>();
+            foreach (string dir in dirs)
+            {
+                DirectoryInfo di = new DirectoryInfo(dir);
+              // filesa = di.GetFiles("*", SearchOption.AllDirectories);
+                filesas.AddRange(di.GetFiles("*", SearchOption.AllDirectories));
+                bg.ReportProgress(filesas.Count);
+                Thread.Sleep(1);
+
+            }
+            foreach(FileInfo filesase in filesas)
+            {
+                filesasstr.Add(filesase.Name + " " + filesase.Length  + " " + filesase.Directory + " " + filesase.CreationTime);
+                bg.ReportProgress(filesasstr.Count);
+                Thread.Sleep(1);
+            }
         }
 
        void bg_RunWorkerCompleted(object sender,
@@ -82,8 +105,13 @@ namespace master
 
 
             listBox1.Invoke(new Action(() => listBox1.DataSource = dirs));
-           // {
-               // label3.Content = "Random Cancelled " + Process.GetCurrentProcess().Threads.Count;
+            richTextBox1.Invoke(new Action(() => richTextBox1.Lines = filesasstr.ToArray()));
+            button1.Invoke(new Action(() => button1.Enabled = false));
+            textBox1.Invoke(new Action(() =>textBox1.Enabled = false ));
+            
+            
+            // {
+            // label3.Content = "Random Cancelled " + Process.GetCurrentProcess().Threads.Count;
             //}));
             //listBox1.Invoke(       
             // listBox1.DataSource = dirs;
@@ -92,7 +120,10 @@ namespace master
          void bg_ProgressChanged(object sender,
     ProgressChangedEventArgs e)
         {
-            label1.Invoke(new Action(() => label1.Text = e.ProgressPercentage.ToString()));
+            currentProc = Process.GetCurrentProcess();
+            long memory = (currentProc.PrivateMemorySize64/ 1024)/1024;
+            label1.Invoke(new Action(() => label1.Text = e.ProgressPercentage.ToString()+" "+memory.ToString()));
+
             //  Console.WriteLine("Обработано " + e.ProgressPercentage + "%");
 
         }
