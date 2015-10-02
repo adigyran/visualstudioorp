@@ -142,7 +142,11 @@ namespace master
            string choiseddir =  listBox1.SelectedValue.ToString();
             //richTextBox1.Text = listBox1.SelectedValue.ToString();
             DirectoryInfo di = new DirectoryInfo(choiseddir);
-            System.IO.FileInfo []files =  di.GetFiles("*",SearchOption.AllDirectories);
+            //System.IO.FileInfo []files =  di.GetFiles("*",SearchOption.AllDirectories);
+            //FileInfo findtext = new FileInfo("");
+           
+            FileInfo[] files = filesas.FindAll(x => x.DirectoryName == choiseddir).ToArray();
+            
             List<string> fileinfotext = new List<string>();
             long filesize = 0;
             long directorysize = 0;
@@ -158,9 +162,12 @@ namespace master
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            if(textBox1.Text.Length>0 && Directory.Exists(textBox1.Text))
+            string txtbox = textBox1.Text;
+            label2.Text = txtbox;
+            if(txtbox.Length>0 && Directory.Exists(txtbox))
             {
                 button1.Enabled = true;
+                
             }
             else
             {
