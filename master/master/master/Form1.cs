@@ -20,6 +20,7 @@ namespace master
         FileInfo[] filesa;
         static List<FileInfo> filesas;
         static List<string> filesasstr;
+        string[] filefot;
         Process currentProc;
 
         BackgroundWorker bg;
@@ -41,6 +42,7 @@ namespace master
             bg.WorkerReportsProgress = true;
             bg.WorkerSupportsCancellation = true;
             bg.ProgressChanged += bg_ProgressChanged;
+            button1.Enabled = false;
 
 
         }
@@ -86,28 +88,35 @@ namespace master
             {
                 DirectoryInfo di = new DirectoryInfo(dir);
               // filesa = di.GetFiles("*", SearchOption.AllDirectories);
-                filesas.AddRange(di.GetFiles("*", SearchOption.AllDirectories));
+                filesas.AddRange(di.GetFiles("*", SearchOption.TopDirectoryOnly));
                 bg.ReportProgress(filesas.Count);
-                Thread.Sleep(1);
+                //Thread.Sleep(1);
 
             }
             foreach(FileInfo filesase in filesas)
             {
                 filesasstr.Add(filesase.Name + " " + filesase.Length  + " " + filesase.Directory + " " + filesase.CreationTime);
                 bg.ReportProgress(filesasstr.Count);
-                Thread.Sleep(1);
+                //Thread.Sleep(1);
             }
+             filefot = filesasstr.Select(i => i.ToString()).ToArray();
+            // foreach (string filesastr in filesasstr)
+            //{
+            //   filefot.Concat(filefot);
+            //  bg.ReportProgress(filefot.Length);
+            //  Thread.Sleep(1);
+            //}
         }
 
        void bg_RunWorkerCompleted(object sender,
                 RunWorkerCompletedEventArgs e)
         {
-
+            
 
             listBox1.Invoke(new Action(() => listBox1.DataSource = dirs));
-            richTextBox1.Invoke(new Action(() => richTextBox1.Lines = filesasstr.ToArray()));
-            button1.Invoke(new Action(() => button1.Enabled = false));
-            textBox1.Invoke(new Action(() =>textBox1.Enabled = false ));
+            richTextBox1.Invoke(new Action(() => richTextBox1.Lines = filefot));
+            button1.Invoke(new Action(() => button1.Enabled = true));
+            textBox1.Invoke(new Action(() =>textBox1.Enabled = true ));
             
             
             // {
@@ -120,9 +129,9 @@ namespace master
          void bg_ProgressChanged(object sender,
     ProgressChangedEventArgs e)
         {
-            currentProc = Process.GetCurrentProcess();
-            long memory = (currentProc.PrivateMemorySize64/ 1024)/1024;
-            label1.Invoke(new Action(() => label1.Text = e.ProgressPercentage.ToString()+" "+memory.ToString()));
+           
+            //long memory = (currentProc.PrivateMemorySize64/ 1024)/1024;
+            label1.Invoke(new Action(() => label1.Text = e.ProgressPercentage.ToString()));
 
             //  Console.WriteLine("Обработано " + e.ProgressPercentage + "%");
 
@@ -149,7 +158,14 @@ namespace master
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-
+            if(textBox1.Text.Length>0 && Directory.Exists(textBox1.Text))
+            {
+                button1.Enabled = true;
+            }
+            else
+            {
+                button1.Enabled = false;
+            }
         }
     }
 }
