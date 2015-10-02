@@ -6,6 +6,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -13,6 +14,11 @@ namespace master
 {
     public partial class Form1 : Form
     {
+        static List<string> dirs;
+        static BackgroundWorker bg;
+
+        public static object ListBox1 { get; private set; }
+
         public Form1()
         {
             InitializeComponent();
@@ -21,6 +27,12 @@ namespace master
         private void Form1_Load(object sender, EventArgs e)
         {
             this.Text = "Великий тест всего сущего";
+
+            bg = new BackgroundWorker();
+            bg.DoWork += new DoWorkEventHandler(bg_DoWork);
+            bg.RunWorkerCompleted += bg_RunWorkerCompleted;
+            
+
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -28,11 +40,12 @@ namespace master
             ActiveForm.Text = "fgfgf";
             try
             {
-                string dirPath = @"h:\downloads";
 
-                List<string> dirs = new List<string>(Directory.EnumerateDirectories(dirPath,"*", SearchOption.AllDirectories));
-               // richTextBox1.Lines = dirs.ToArray();
-                listBox1.DataSource = dirs;
+                //Thread newThread = new Thread(loaddirect);
+                //newThread.Start();
+                bg.RunWorkerAsync();
+                // richTextBox1.Lines = dirs.ToArray();
+                
 
                 //foreach (var dir in dirs)
                 //{
@@ -50,9 +63,42 @@ namespace master
             }
         }
 
+        static void bg_DoWork(object sender, DoWorkEventArgs e)
+        {
+            string dirPath = @"h:\";
+             dirs = new List<string>(Directory.EnumerateDirectories(dirPath, "*", SearchOption.AllDirectories));
+        }
+        static void bg_RunWorkerCompleted(object sender,
+                RunWorkerCompletedEventArgs e)
+        {
+
+            listBox1.Invoke(new Action(() => listBox1.DataSource = dirs));
+           // {
+               // label3.Content = "Random Cancelled " + Process.GetCurrentProcess().Threads.Count;
+            //}));
+            //listBox1.Invoke(       
+            // listBox1.DataSource = dirs;
+            //);
+        }
+
+
         private void listBox1_SelectedValueChanged(object sender, EventArgs e)
         {
-            richTextBox1.Text = listBox1.SelectedValue.ToString();
+           string choiseddir =  listBox1.SelectedValue.ToString();
+            //richTextBox1.Text = listBox1.SelectedValue.ToString();
+            DirectoryInfo di = new DirectoryInfo(choiseddir);
+            System.IO.FileInfo []files =  di.GetFiles("*",SearchOption.AllDirectories);
+            List<string> fileinfotext = new List<string>();
+            long filesize = 0;
+            long directorysize = 0;
+            foreach (FileInfo file in files)
+            {
+                filesize = (file.Length / 1024)/1024;
+                fileinfotext.Add(file.Name + " " +filesize+" MBytes "+file.Extension);
+                directorysize += filesize;
+            }
+            fileinfotext.Add(directorysize.ToString() + " Mbytes");
+            richTextBox1.Lines = fileinfotext.ToArray();
         }
     }
 }
