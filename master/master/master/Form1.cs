@@ -15,7 +15,9 @@ namespace master
     public partial class Form1 : Form
     {
         static List<string> dirs;
-        static BackgroundWorker bg;
+        static string dirPath;
+        
+         BackgroundWorker bg;
 
         public static object ListBox1 { get; private set; }
 
@@ -31,7 +33,10 @@ namespace master
             bg = new BackgroundWorker();
             bg.DoWork += new DoWorkEventHandler(bg_DoWork);
             bg.RunWorkerCompleted += bg_RunWorkerCompleted;
-            
+            bg.WorkerReportsProgress = true;
+            bg.WorkerSupportsCancellation = true;
+            bg.ProgressChanged += bg_ProgressChanged;
+
 
         }
 
@@ -40,7 +45,7 @@ namespace master
             ActiveForm.Text = "fgfgf";
             try
             {
-
+                dirPath = textBox1.Text;
                 //Thread newThread = new Thread(loaddirect);
                 //newThread.Start();
                 bg.RunWorkerAsync();
@@ -63,14 +68,18 @@ namespace master
             }
         }
 
-        static void bg_DoWork(object sender, DoWorkEventArgs e)
+         void bg_DoWork(object sender, DoWorkEventArgs e)
         {
-            string dirPath = @"h:\";
+           // string dirPath = @"h:\downloads";
              dirs = new List<string>(Directory.EnumerateDirectories(dirPath, "*", SearchOption.AllDirectories));
+            
+            bg.ReportProgress(dirs.Count);
         }
-        static void bg_RunWorkerCompleted(object sender,
+
+       void bg_RunWorkerCompleted(object sender,
                 RunWorkerCompletedEventArgs e)
         {
+
 
             listBox1.Invoke(new Action(() => listBox1.DataSource = dirs));
            // {
@@ -80,7 +89,13 @@ namespace master
             // listBox1.DataSource = dirs;
             //);
         }
+         void bg_ProgressChanged(object sender,
+    ProgressChangedEventArgs e)
+        {
+            label1.Invoke(new Action(() => label1.Text = e.ProgressPercentage.ToString()));
+            //  Console.WriteLine("Обработано " + e.ProgressPercentage + "%");
 
+        }
 
         private void listBox1_SelectedValueChanged(object sender, EventArgs e)
         {
@@ -94,11 +109,16 @@ namespace master
             foreach (FileInfo file in files)
             {
                 filesize = (file.Length / 1024)/1024;
-                fileinfotext.Add(file.Name + " " +filesize+" MBytes "+file.Extension);
+                fileinfotext.Add(file.Name + " " +filesize+" MBytes "+file.Extension+" "+file.Directory);
                 directorysize += filesize;
             }
             fileinfotext.Add(directorysize.ToString() + " Mbytes");
             richTextBox1.Lines = fileinfotext.ToArray();
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
