@@ -16,5 +16,15 @@ namespace master
         {
             InitializeComponent();
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            this.Text = "Великий тест всего сущего";
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            ActiveForm.Text = "fgfgf";
+        }
     }
 }
