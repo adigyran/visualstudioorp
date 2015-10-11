@@ -3,20 +3,19 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using System.Web.Script.Serialization;
 using System.Windows.Forms;
-using System.Web;
+using Newtonsoft.Json;
+using testingdill;
 
 namespace master
 {
+  
     public partial class Form1 : Form
     {
         static List<string> dirs;
@@ -25,7 +24,14 @@ namespace master
         static List<FileInfo> filesas;
         static List<string> filesasstr;
         string[] filefot;
-        Process currentProc;
+        public class Account
+         {
+            public string Email { get; set; }
+            public bool Active { get; set; }
+            public DateTime CreatedDate { get; set; }
+            public IList<string> Roles { get; set; }
+         }
+    Process currentProc;
 
         BackgroundWorker bg;
         BackgroundWorker bf;
@@ -177,24 +183,23 @@ namespace master
             int remain = filesas.Count();
 
 
-            FileStream fs = new FileStream("DataFile.dat", FileMode.Create);
+            FileStream fs = new FileStream("DataFile.dat", FileMode.Append);
 
             // Construct a BinaryFormatter and use it to serialize the data to the stream.
             BinaryFormatter formatter = new BinaryFormatter();
             try
             {
-                foreach (FileInfo x in filesas)
-                {
+                
 
 
-                    formatter.Serialize(fs, x);
-                    bf.ReportProgress(prgrsess);
-                    label3.Invoke(new Action(() => label3.Text = remain + " " + x.Name + " " + x.Length.ToString()));
+                    formatter.Serialize(fs, filesas);
+                    //bf.ReportProgress(prgrsess);
+                    //label3.Invoke(new Action(() => label3.Text = remain + " " + x.Name + " " + x.Length.ToString()));
                     Thread.Sleep(1);
-                    prgrsess++;
-                    remain--;
+                    //prgrsess++;
+                    //remain--;
 
-                }
+              
             }
             catch (Exception exeption)
             { MessageBox.Show(exeption.Message); }
@@ -280,6 +285,7 @@ namespace master
             }
             fileinfotext.Add(directorysize.ToString() + " Mbytes");
             richTextBox1.Lines = fileinfotext.ToArray();
+            label4.Text = directorysize.ToString() + " Mbytes";
             button2.Enabled = true;
         }
 
@@ -333,18 +339,36 @@ namespace master
 
             //HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://tickets.multifest.ru/php/base_connections.php");
 
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create("http://url");
-            httpWebRequest.ContentType = "application/json";
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://tickets.multifest.ru/php/csharpctests.php");
+            //var httpWebRequest = (HttpWebRequest)WebRequest.Create("https://tickets.multifest.ru/php/base_connections.php");
+            httpWebRequest.ContentType = "Content-Type: application/x-www-form-urlencoded; charset=UTF-8";
             httpWebRequest.Method = "POST";
+            
+            Product product = new Product();
+            product.load = "Apple";
+            //product.Expiry = new DateTime(2008, 12, 28);
+            //product.Price = 3.99M;
+            //product.Sizes = new string[] { "Small", "Medium", "Large" };
 
+            //string json = JsonConvert.SerializeObject(product);
+            //{
+            //  "Name": "Apple",
+            //  "Expiry": "2008-12-28T00:00:00",
+            //  "Price": 3.99,
+            //  "Sizes": [
+            //    "Small",
+            //    "Medium",
+            //    "Large"
+            //  ]
+            //}
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
-                string json = new JavaScriptSerializer().Serialize(new
-                {
-                    user = "Foo",
-                    password = "Baz"
-                });
-
+                // string json = new JavaScriptSerializer().Serialize(new
+                //{
+                //   load = "Load",
+                //});
+                string json = new JavaScriptSerializer().Serialize(product);
+                label3.Text = json;
                 streamWriter.Write(json);
             }
 
@@ -352,7 +376,85 @@ namespace master
             using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
             {
                 var result = streamReader.ReadToEnd();
+                richTextBox1.Text=result;
             }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            List<FileInfo> spmetho;
+            using (Stream stream = File.Open("DataFile.dat", FileMode.Open))
+            {
+
+                var bformatter = new BinaryFormatter();
+               
+                    
+                        //spmetho = ((FileInfo)bformatter.Deserialize(stream));
+                        spmetho = (List<FileInfo>)bformatter.Deserialize(stream);
+                // List<MyStruct> result = mystream.Deserialize<List<MyStruct>>();
+
+                stream.Close(); 
+            }
+            List<string> fileinfotext = new List<string>();
+            long filesize = 0;
+            long directorysize = 0;
+            foreach (FileInfo file in spmetho)
+            {
+                filesize = (file.Length / 1024) / 1024;
+                fileinfotext.Add(file.Name + " " + filesize + " MBytes " + file.Extension + " " + file.Directory);
+                directorysize += filesize;
+            }
+            fileinfotext.Add(directorysize.ToString() + " Mbytes");
+            label4.Text = directorysize.ToString() + " Mbytes";
+            richTextBox1.Lines = fileinfotext.ToArray();
+            
+        }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            ToolTip hint = new ToolTip();
+            hint.IsBalloon = true;
+            hint.ToolTipTitle = "TEST";
+            hint.ToolTipIcon = ToolTipIcon.Error;
+            hint.Show(string.Empty, button6, 0, 0);
+            hint.Show("Please create a world.", button6, 0, 0);
+        }
+
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
+        }
+
+        private void Form1_Resize(object sender, System.EventArgs e)
+        {
+            if (FormWindowState.Minimized == WindowState)
+                Hide();
+        }
+
+        private void notifyIcon1_MouseClick(object sender, MouseEventArgs e)
+        {
+
+        }
+
+        private void вывестиОкноToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Show();
+            WindowState = FormWindowState.Normal;
+        }
+
+        private void выйтиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void testingddllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            List<string> aaer = new List<string>();
+            aaer.Add("dfdf");
+            trel lor = new trel();
+            lor.Appendei("da",ref aaer);
+            richTextBox1.Lines = aaer.ToArray();
         }
     }
 }

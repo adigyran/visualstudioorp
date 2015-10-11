@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "master", "master\master.csproj", "{DADE94BB-3BA8-4003-9996-B4D95F4CC13B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary1", "..\ClassLibrary1\ClassLibrary1\ClassLibrary1.csproj", "{E07B8556-2273-4BFF-ACDD-1F860B4816AC}"
+EndProject
 Global
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true
@@ -24,6 +26,14 @@ Global
 		{DADE94BB-3BA8-4003-9996-B4D95F4CC13B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DADE94BB-3BA8-4003-9996-B4D95F4CC13B}.Release|x64.ActiveCfg = Release|x64
 		{DADE94BB-3BA8-4003-9996-B4D95F4CC13B}.Release|x64.Build.0 = Release|x64
+		{E07B8556-2273-4BFF-ACDD-1F860B4816AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E07B8556-2273-4BFF-ACDD-1F860B4816AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E07B8556-2273-4BFF-ACDD-1F860B4816AC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E07B8556-2273-4BFF-ACDD-1F860B4816AC}.Debug|x64.Build.0 = Debug|Any CPU
+		{E07B8556-2273-4BFF-ACDD-1F860B4816AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E07B8556-2273-4BFF-ACDD-1F860B4816AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E07B8556-2273-4BFF-ACDD-1F860B4816AC}.Release|x64.ActiveCfg = Release|Any CPU
+		{E07B8556-2273-4BFF-ACDD-1F860B4816AC}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
